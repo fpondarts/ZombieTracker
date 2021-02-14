@@ -3,9 +3,11 @@ import { FlatList, StyleSheet, TextInput, View, Text } from 'react-native'
 import useLocations from '../hooks/useLocations'
 import useZombies from '../hooks/useZombies'
 import { colors } from '../theme'
-import { Zombie } from '../types'
+import { MenuOption, Zombie } from '../types'
 import ZombieCountBanner from './ZombieCountBanner'
 import ZombieRow from './ZombieRow'
+import Menu from './Menu'
+import { Provider } from 'react-native-paper'
 
 
 const MainScreen = () => {
@@ -15,8 +17,12 @@ const MainScreen = () => {
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const { zombies, fetchZombies, loading } = useZombies()
     const { locations } = useLocations()
-
-
+    const [locationFilter, setLocationFilter] = useState<string>('all')
+    const locationFilterOptions: MenuOption[] = [
+        { value: 'all', label: 'All locations'},
+        ...locations
+            .map(location => ({ value: location, label: location })),
+]
     const handlePress = (id: string) => {
         if (!selectedIds.includes(id)) {
             setSelectedIds([...selectedIds, id])
@@ -28,10 +34,11 @@ const MainScreen = () => {
     const filteredZombies = useMemo(() => {
         const lowerCaseTerm = searchTerm.toLowerCase()
         
-        return zombies.filter(({ name }) =>
-            name.toLowerCase().includes(lowerCaseTerm)
+        return zombies.filter(({ name, location }) =>
+            (locationFilter === 'all' || locationFilter === location)
+            && name.toLowerCase().includes(lowerCaseTerm)
         )
-    }, [searchTerm, zombies])
+    }, [searchTerm, zombies, locationFilter])
 
 
     const initialCount = locations.reduce((accum, location) => {
@@ -50,24 +57,32 @@ const MainScreen = () => {
 
 
     return (
-        <View style={{ flex: 1 }}>
-            <ZombieCountBanner count={zombieCount} />
-            <TextInput
-                style={styles.textInput}
-                value={searchTerm}
-                onChangeText={setSearchTerm}
-                placeholder={'Search by zombie name...'}
-            />
-            <FlatList
-                ref={listRef}
-                data={filteredZombies}
-                renderItem={renderZombie}
-                refreshing={loading}
-                onRefresh={() => fetchZombies()}
-                contentContainerStyle={styles.flatlistContent}
-                ListEmptyComponent={<Text style={styles.noMatchesText}>{`No matches`}</Text>}
-            />
-        </View>
+        <Provider>
+            <View style={{ flex: 1 }}>
+                <ZombieCountBanner count={zombieCount} />
+                <TextInput
+                    style={styles.textInput}
+                    value={searchTerm}
+                    onChangeText={setSearchTerm}
+                    placeholder={'Search by zombie name...'}
+                />
+                <Menu
+                    options={locationFilterOptions}
+                    value={locationFilter}
+                    onSelectOption={setLocationFilter}
+                    placeholder={'All locations'}
+                />
+                <FlatList
+                    ref={listRef}
+                    data={filteredZombies}
+                    renderItem={renderZombie}
+                    refreshing={loading}
+                    onRefresh={() => fetchZombies()}
+                    contentContainerStyle={styles.flatlistContent}
+                    ListEmptyComponent={<Text style={styles.noMatchesText}>{`No matches`}</Text>}
+                />
+            </View>
+        </Provider>
     )
 }
 
