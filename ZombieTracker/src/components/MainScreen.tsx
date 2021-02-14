@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react'
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import React, { useRef, useState, useMemo } from 'react'
+import { FlatList, StyleSheet, TextInput, View, Text } from 'react-native'
 import useLocations from '../hooks/useLocations'
 import useZombies from '../hooks/useZombies'
 import { colors } from '../theme'
@@ -10,6 +10,7 @@ import ZombieRow from './ZombieRow'
 
 const MainScreen = () => {
 
+    const [searchTerm, setSearchTerm] = useState('')
     const listRef = useRef<FlatList<Zombie>>(null)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const { zombies, fetchZombies, loading } = useZombies()
@@ -23,6 +24,15 @@ const MainScreen = () => {
             setSelectedIds(selectedIds.filter(elem => elem !== id))
         }
     }
+    
+    const filteredZombies = useMemo(() => {
+        const lowerCaseTerm = searchTerm.toLowerCase()
+        
+        return zombies.filter(({ name }) =>
+            name.toLowerCase().includes(lowerCaseTerm)
+        )
+    }, [searchTerm, zombies])
+
 
     const initialCount = locations.reduce((accum, location) => {
         accum[location] = 0
@@ -42,13 +52,20 @@ const MainScreen = () => {
     return (
         <View style={{ flex: 1 }}>
             <ZombieCountBanner count={zombieCount} />
+            <TextInput
+                style={styles.textInput}
+                value={searchTerm}
+                onChangeText={setSearchTerm}
+                placeholder={'Search by zombie name...'}
+            />
             <FlatList
                 ref={listRef}
-                data={zombies}
+                data={filteredZombies}
                 renderItem={renderZombie}
                 refreshing={loading}
                 onRefresh={() => fetchZombies()}
                 contentContainerStyle={styles.flatlistContent}
+                ListEmptyComponent={<Text style={styles.noMatchesText}>{`No matches`}</Text>}
             />
         </View>
     )
