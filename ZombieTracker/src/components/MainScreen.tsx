@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo } from 'react'
-import { FlatList, StyleSheet, TextInput, View, Text } from 'react-native'
+import { FlatList, StyleSheet, TextInput, View, Text, TouchableOpacity } from 'react-native'
 import useLocations from '../hooks/useLocations'
 import useZombies from '../hooks/useZombies'
 import { colors } from '../theme'
@@ -15,9 +15,14 @@ const MainScreen = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const listRef = useRef<FlatList<Zombie>>(null)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
-    const { zombies, fetchZombies, loading } = useZombies()
+    const [destination, setDestination] = useState<string>()
+    const { zombies, fetchZombies, transferZombies, loading } = useZombies()
     const { locations } = useLocations()
     const [locationFilter, setLocationFilter] = useState<string>('all')
+
+    const destinationOptions: MenuOption[] = locations
+        .map(location => ({ value: location, label: location }))
+
     const locationFilterOptions: MenuOption[] = [
         { value: 'all', label: 'All locations'},
         ...locations
@@ -55,7 +60,13 @@ const MainScreen = () => {
     const renderZombie = ({ item }: { item: Zombie }) => 
         <ZombieRow {...item} selected={selectedIds.includes(item.id)} onPress={handlePress} />
 
+    const onTransfer = () => {
+        transferZombies(selectedIds, destination!!)
+        setSelectedIds([])
+    }
 
+    const transferDisabled = !selectedIds.length || !destination
+    
     return (
         <Provider>
             <View style={{ flex: 1 }}>
@@ -81,6 +92,35 @@ const MainScreen = () => {
                     contentContainerStyle={styles.flatlistContent}
                     ListEmptyComponent={<Text style={styles.noMatchesText}>{`No matches`}</Text>}
                 />
+            </View>
+            <View style={styles.footer}>
+                <View style={{
+                    padding: 16,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }}>
+                    <Text>{`${selectedIds.length} zombies selected`}</Text>
+                    <View>
+                        <Text style={{ paddingLeft: 8 }}>
+                            {`Destination`}
+                        </Text>
+                        <Menu
+                            options={destinationOptions}
+                            value={destination}
+                            onSelectOption={setDestination}
+                            placeholder={'Set destination'}
+                        />
+                    </View>
+                </View>
+                <TouchableOpacity
+                    disabled={transferDisabled}
+                    style={[styles.footerButton, transferDisabled ? styles.disabled : styles.enabled]}
+                    onPress={() => onTransfer()}
+                >
+                    <Text style={transferDisabled ? styles.disabled : styles.enabled}>
+                        {'Transfer Zombies'}
+                    </Text>
+                </TouchableOpacity>
             </View>
         </Provider>
     )
@@ -118,6 +158,30 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
         textAlign: 'center',
         padding: 64
+    },
+    footerButton: {
+        borderWidth: 1,
+        borderColor: colors.darkGray,
+        borderRadius: 16,
+        marginHorizontal: 8,
+        padding: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowRadius: 4,
+        shadowOpacity: 0.5,
+        shadowOffset: {
+            height: 4,
+            width: 4
+        },
+        elevation: 4
+    },
+    enabled: {
+        backgroundColor: colors.button,
+        color: colors.white
+    },
+    disabled: {
+        backgroundColor: colors.lightGray,
+        color: colors.darkGray
     }
 })
 
