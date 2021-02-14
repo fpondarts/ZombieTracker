@@ -50,11 +50,13 @@ interface LocationsMenuProps {
 
 const styles = StyleSheet.create({
     button: {
-        width: 128,
+        alignItems: 'center',
+        alignSelf: 'flex-start',
         borderWidth: 1,
         borderRadius: 16,
         margin: 8,
         marginBottom: 16,
+        paddingHorizontal: 8,
         borderColor: colors.darkGray,
         backgroundColor: colors.button,
         shadowRadius: 2,
@@ -66,7 +68,6 @@ const styles = StyleSheet.create({
         elevation: 2
     },
     label: {
-        marginLeft: 4,
         fontSize: 16,
         padding: 4,
         color: colors.white
