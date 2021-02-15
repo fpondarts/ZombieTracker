@@ -8,9 +8,13 @@ const ZombieCountBanner = ({ count }: ZombieCountBannerProps) => {
             <Text style={styles.title}>
                 {`Zombie Count`}
             </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around', margin: 8 }}>
+            <ScrollView
+                horizontal
+                style={styles.scroll}
+                contentContainerStyle={styles.scrollContainer}
+            >
                 {Object.entries(count).map(([key, val]) => 
-                    <View key={`count-${key}`} style={{ padding: 8, alignItems: 'center' }}>
+                    <View key={`count-${key}`} style={styles.countItem}>
                         <Text>
                             {key}
                         </Text>
@@ -19,7 +23,7 @@ const ZombieCountBanner = ({ count }: ZombieCountBannerProps) => {
                         </Text>
                     </View>
                 )}
-            </View>    
+            </ScrollView>    
         </View>
     )
 }
@@ -29,10 +33,23 @@ interface ZombieCountBannerProps {
 }
 
 const styles = StyleSheet.create({
+    scroll: {
+        alignSelf: 'center' 
+    },
+    scrollContainer: {
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        margin: 8 
+    },
     title: {
         marginTop: 16,
         fontSize: 32,
         textAlign: 'center'
+    },
+    countItem: {
+        padding: 8,
+        alignItems: 'center'
     }
 })
 
