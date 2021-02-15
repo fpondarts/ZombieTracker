@@ -89,6 +89,7 @@ const MainScreen = () => {
                     ref={listRef}
                     data={filteredZombies}
                     renderItem={renderZombie}
+                    keyExtractor={(item) => item.id}
                     refreshing={loading}
                     onRefresh={() => fetchZombies()}
                     contentContainerStyle={styles.flatlistContent}
