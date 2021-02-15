@@ -51,11 +51,13 @@ const MainScreen = () => {
         return accum
     }, {} as any)
 
-    const zombieCount = zombies.reduce((count, zombie) => {
-        const currentCount = count[zombie.location] || 0
-        count[zombie.location] = currentCount + 1
-        return count
-    }, initialCount)
+    const zombieCount = useMemo(() => {
+        return zombies.reduce((count, zombie) => {
+            const currentCount = count[zombie.location] || 0
+            count[zombie.location] = currentCount + 1
+            return count
+        }, initialCount)
+    }, [zombies, locations])
 
     const renderZombie = ({ item }: { item: Zombie }) => 
         <ZombieRow {...item} selected={selectedIds.includes(item.id)} onPress={handlePress} />
