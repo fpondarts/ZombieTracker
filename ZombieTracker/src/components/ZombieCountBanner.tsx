@@ -30,6 +30,7 @@ interface ZombieCountBannerProps {
 
 const styles = StyleSheet.create({
     title: {
+        marginTop: 16,
         fontSize: 32,
         textAlign: 'center'
     }

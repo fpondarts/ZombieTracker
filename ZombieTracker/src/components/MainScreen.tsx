@@ -114,10 +114,13 @@ const MainScreen = () => {
                 </View>
                 <TouchableOpacity
                     disabled={transferDisabled}
-                    style={[styles.footerButton, transferDisabled ? styles.disabled : styles.enabled]}
+                    style={[
+                        styles.footerButton, 
+                        transferDisabled ? styles.disabled : styles.enabled
+                    ]}
                     onPress={() => onTransfer()}
                 >
-                    <Text style={transferDisabled ? styles.disabled : styles.enabled}>
+                    <Text style={[{ fontSize: 16 }, transferDisabled ? styles.disabled : styles.enabled]}>
                         {'Transfer Zombies'}
                     </Text>
                 </TouchableOpacity>
